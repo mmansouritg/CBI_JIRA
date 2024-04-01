@@ -24,7 +24,7 @@
             
             <div id="result"></div>
         </div>
-        <link rel="stylesheet" href="https://raw.githubusercontent.com/mmansouritg/CBI_JIRA/main/hoursReport.css?token=GHSAT0AAAAAACQLORHBK2476JCRSTKQRZEWZQJ7H6Q">
+        <link rel="stylesheet" href="https://raw.githubusercontent.com/mmansouritg/CBI_JIRA/main/hoursReport.css">
     `;
     
     var container = document.createElement('div');
