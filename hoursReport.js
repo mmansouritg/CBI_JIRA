@@ -245,22 +245,22 @@
       font-family: Arial, sans-serif;
     }
     
-    th, td {
+    #cbiJiraAPIContent th, #cbiJiraAPIContent td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
     }
     
-    th {
+    #cbiJiraAPIContent th {
       background-color: #007bff;
       color: white;
     }
     
-    tr:nth-child(even) {
+    #cbiJiraAPIContent tr:nth-child(even) {
       background-color: #f2f2f2;
     }
     
-    tr:hover {
+    #cbiJiraAPIContent tr:hover {
       background-color: #ddd;
     }
 	
