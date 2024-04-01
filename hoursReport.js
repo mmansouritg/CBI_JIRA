@@ -1,36 +1,37 @@
-
-    var content = `
-    <div class="popup-header">
-	  <span id="closePopupBtn" class="close">&#x2715;</span>
-	  <h1>Jira Time report</h1>
-	</div>
-    <div id="jiraHouesReport">
-        <form id="reportForm">
-			<div class="input">
-				<label class="t-input-label"  for="startDate">Start Date:</label>
-				<input type="date" class="t-input-box" id="startDate" required>
-            </div>
-			<div class="input">
-				<label class="t-input-label" for="endDate">End Date:</label>
-				<input type="date" class="t-input-box" id="endDate" required>
-			</div>
-			<div class="input">
-            <label class="t-input-label" for="project">Project:</label>
-            <select id="project" class="t-input-box t-select" required>
-                <option value="WCS Enhancement/Bug Tracker">WCS Enhancement/Bug Tracker</option>
-				<option value="CBI Mobile">CBI Mobile</option>
-                <!-- Add more options as needed -->
-            </select>
-			</div>
-            <button type="button" class="t-btn" id="retrieveDataBtn" disabled><span>Retrieve Data from Jira</span></button>
-        </form>
-		<div class="reportBtns">
-        <button type="button" class="t-btn" id="buildComponentHoursBtn" disabled><span>Component vs Hours Spent</span></button>
-        <button type="button" class="t-btn" id="buildResourceHoursBtn" disabled><span>Component vs Hours Spent for Each Resource</span></button>
+(function() {
+var content = `
+<div class="popup-header">
+  <span id="closePopupBtn" class="close">&#x2715;</span>
+  <h1>Jira Time report</h1>
+</div>
+<div id="jiraHouesReport">
+	<form id="reportForm">
+		<div class="input">
+			<label class="t-input-label"  for="startDate">Start Date:</label>
+			<input type="date" class="t-input-box" id="startDate" required>
 		</div>
-        <div id="result"></div>
-    </div>
-	<style>
+		<div class="input">
+			<label class="t-input-label" for="endDate">End Date:</label>
+			<input type="date" class="t-input-box" id="endDate" required>
+		</div>
+		<div class="input">
+		<label class="t-input-label" for="project">Project:</label>
+		<select id="project" class="t-input-box t-select" required>
+			<option value="WCS Enhancement/Bug Tracker">WCS Enhancement/Bug Tracker</option>
+			<option value="CBI Mobile">CBI Mobile</option>
+			<!-- Add more options as needed -->
+		</select>
+		</div>
+		<button type="button" class="t-btn" id="retrieveDataBtn" disabled><span>Retrieve Data from Jira</span></button>
+	</form>
+	<div class="reportBtns">
+	<button type="button" class="t-btn" id="buildComponentHoursBtn" disabled><span>Component vs Hours Spent</span></button>
+	<button type="button" class="t-btn" id="buildResourceHoursBtn" disabled><span>Component vs Hours Spent for Each Resource</span></button>
+	</div>
+	<div id="result"></div>
+</div>
+
+<style>
 #cbiJiraAPIContent {  
     position: fixed;
     z-index: 2147483647;
@@ -39,7 +40,7 @@
     margin: 0px;
     padding: 30px;
     width: 80%;
-    background: url(bg.gif) 0px 0px repeat rgb(239, 239, 239);
+    background: 0px 0px repeat rgb(239, 239, 239);
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     box-shadow: rgba(255, 255, 255, 0.6) 0px 1px 0px inset, rgba(0, 0, 0, 0.56) 0px 22px 70px 4px, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px;
@@ -162,7 +163,7 @@
 #cbiJiraAPIContent .t-btn:disabled {
   pointer-events: none;
   background-color: #959595;
-  opacity: .8
+  opacity: .5
 }
 
 #cbiJiraAPIContent .t-input-box {
@@ -238,6 +239,8 @@
     margin-top: 20px;
 }
 
+
+
 #cbiJiraAPIContent table {
       width: 100%;
       border-collapse: collapse;
@@ -245,239 +248,257 @@
       font-family: Arial, sans-serif;
     }
     
-    #cbiJiraAPIContent th, #cbiJiraAPIContent td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    
-    #cbiJiraAPIContent th {
-      background-color: #007bff;
+#cbiJiraAPIContent th, #cbiJiraAPIContent td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+#cbiJiraAPIContent th {
+  background-color: #007bff;
+  color: white;
+}
+
+#cbiJiraAPIContent tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#cbiJiraAPIContent tr:hover {
+  background-color: #ddd;
+}
+
+#cbiJiraAPIContent .header-row, #cbiJiraAPIContent .total-row {
+	  background-color: #454545  !important;
       color: white;
-    }
-    
-    #cbiJiraAPIContent tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-    
-    #cbiJiraAPIContent tr:hover {
-      background-color: #ddd;
-    }
+}
+
+#cbiJiraAPIContent .header-row:hover, #cbiJiraAPIContent .total-row:hover {
+	  background-color: #454545  !important;
+      color: white;
+}
 	
 </style>
 
 `;
 
-    var container = document.createElement('div');
-    container.innerHTML = content;
-    container.setAttribute('id', 'cbiJiraAPIContent');
-    document.body.appendChild(container);
+if (document.getElementById('cbiJiraAPIContent')) {
+	document.body.removeChild(document.getElementById('cbiJiraAPIContent'));
+}
+const container = document.createElement('div');
+container.innerHTML = content;
+container.setAttribute('id', 'cbiJiraAPIContent');
+document.body.appendChild(container);
 
-    var startDate;
-    var endDate;
-    var jiraJson;
+const elements = {
+  container : container,
+  retrieveDataBtn: document.getElementById('retrieveDataBtn'),
+  closePopupBtn: document.getElementById('closePopupBtn'),
+  buildComponentHoursBtn: document.getElementById('buildComponentHoursBtn'),
+  buildResourceHoursBtn: document.getElementById('buildResourceHoursBtn'),
+  buildResourceHoursBtn: document.getElementById('buildResourceHoursBtn'),
+  startDate: document.getElementById('startDate'),
+  endDate: document.getElementById('endDate'),
+  project: document.getElementById('project'),
+  resultDiv: document.getElementById('result'),
 
-    var retrieveDataBtn = document.getElementById('retrieveDataBtn');
-    retrieveDataBtn.disabled = false;
+};
+const inputs = ['startDate', 'endDate', 'project'];
+var jiraJson;
+elements.retrieveDataBtn.disabled = false;
+elements.closePopupBtn.addEventListener('click', function () {
+	event.preventDefault(); 
+	document.body.removeChild(container);
+});
+elements.retrieveDataBtn.addEventListener('click', function (event) {
+	event.preventDefault(); 
+	var startDate = new Date(elements.startDate.value);
+	var endDate = new Date(elements.endDate.value);
+	if (startDate <= endDate){
+		elements.retrieveDataBtn.disabled = true;
+		jiraJson = null;
+		getJiraData();
+	} else {
+		elements.startDate.classList.add('t-input-error');
+		elements.endDate.classList.add('t-input-error');
+	}
+});
+elements.buildComponentHoursBtn.addEventListener('click', function (event) {
+	event.preventDefault(); // Prevent default behavior of button click
+	buildComponentHoursTable();
+});
+elements.buildResourceHoursBtn.addEventListener('click', function (event) {
+	event.preventDefault(); // Prevent default behavior of button click
+	buildResourceHoursTable();
+});
 
-    var closePopupBtn = document.getElementById('closePopupBtn');
-    closePopupBtn.addEventListener('click', function () {
-        document.body.removeChild(container);
-    });
+inputs.forEach((input, index) => {
+	elements[input].addEventListener('change', (event) => {
+		elements.buildResourceHoursBtn.disabled = true;
+		elements.buildComponentHoursBtn.disabled = true;
+		elements.retrieveDataBtn.disabled = false;
+		elements[input].classList.remove('t-input-error');
+		var startDate = new Date(elements.startDate.value);
+		var endDate = new Date(elements.endDate.value);
+		if (startDate <= endDate){
+			elements.startDate.classList.remove('t-input-error');
+			elements.endDate.classList.remove('t-input-error');
+		}
+	});
+});
 
-    var retrieveDataBtn = document.getElementById('retrieveDataBtn');
-    retrieveDataBtn.addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent default behavior of button click
-        getJiraData();
-    });
+function getJiraData() {
+	let apiUrl = "https://jira.cornerstonebrands.com/rest/api/2/search?jql=worklogDate%20%3E=%20%22" + formatDate(elements.startDate.value) + "%22%20AND%20worklogDate%20%3C=%20%22" + formatDate(elements.endDate.value) + "%22%20AND%20project%20=%20%22" + elements.project.value + "%22&fields=components,worklog,timetracking&maxResults=500";
+	let headers = new Headers();
+	headers.append('Content-Type', 'application/json');
 
-    var buildComponentHoursBtn = document.getElementById('buildComponentHoursBtn');
-    buildComponentHoursBtn.addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent default behavior of button click
-        buildComponentHoursTable();
-    });
+	fetch(apiUrl, {
+		method: 'GET',
+		headers: headers
+	})
+	.then(response => response.json())
+	.then(data => {
+		console.log("Data has been retrieved");
+		jiraJson = data;
+		elements.buildResourceHoursBtn.disabled = false;
+		elements.buildComponentHoursBtn.disabled = false;
+	})
+	.catch(error => {
+		console.error('Error:', error);
+	});
+}
 
-    var buildResourceHoursBtn = document.getElementById('buildResourceHoursBtn');
-    buildResourceHoursBtn.addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent default behavior of button click
-        buildResourceHoursTable();
-    });
+function buildComponentHoursTable() {
+	elements.resultDiv.innerHTML = "<h2>Component vs Hours Spent Table</h2>";
+	var componentHours = {};
+	var startDate = new Date(elements.startDate.value);
+	var endDate = new Date(elements.endDate.value);
+	endDate.setHours(23, 59, 59, 999);
+	var totalHours = 0;
+	jiraJson.issues.forEach(function (issue) {
+		var hours = 0;
+		issue.fields.worklog.worklogs.forEach(function (worklog) {
+			var worklogDate = new Date(worklog.started);
+			if (worklogDate >= startDate && worklogDate <= endDate) {
+				hours += worklog.timeSpentSeconds / 3600;
+			}
+		});
+		issue.fields.components.forEach(function (component) {
+			var componentName = component.name;
+			if (!componentHours[componentName]) {
+				componentHours[componentName] = hours;
+			} else {
+				componentHours[componentName] += hours;
+			}
+			totalHours += hours;
+		});
+	});
 
-    function getJiraData() {
-        startDate = document.getElementById("startDate").value;
-        endDate = document.getElementById("endDate").value;
-        var project = document.getElementById("project").value;
-        var componentHoursBtn = document.getElementById('buildComponentHoursBtn');
-        var resourceHoursBtn = document.getElementById('buildResourceHoursBtn');
+	var table = document.createElement("table");
+	var headerRow = table.insertRow();
+	var componentHeader = headerRow.insertCell(0);
+	componentHeader.textContent = "Component";
+	var hoursHeader = headerRow.insertCell(1);
+	hoursHeader.textContent = "Hours Spent";
+	headerRow.classList.add('header-row')
 
-        var apiUrl = "https://jira.cornerstonebrands.com/rest/api/2/search?jql=worklogDate%20%3E=%20%22" + formatDate(startDate) + "%22%20AND%20worklogDate%20%3C=%20%22" + formatDate(endDate) + "%22%20AND%20project%20=%20%22" + project + "%22&fields=components,worklog,timetracking&maxResults=100";
-        var headers = new Headers();
-        headers.append('Content-Type', 'application/json');
+	Object.keys(componentHours).forEach(function (componentName) {
+		var row = table.insertRow();
+		var componentCell = row.insertCell(0);
+		componentCell.textContent = componentName;
+		var hoursCell = row.insertCell(1);
+		hoursCell.textContent = componentHours[componentName];
+	});
+	
+	var row = table.insertRow();
+	row.classList.add('total-row')
+	var componentCell = row.insertCell(0);
+	componentCell.textContent = "Total Hours";
+	var hoursCell = row.insertCell(1);
+	hoursCell.textContent = totalHours;
+	
+	elements.resultDiv.appendChild(table);
+}
 
-        fetch(apiUrl, {
-            method: 'GET',
-            headers: headers
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                // You can further process the data here
-                jiraJson = data;
-                componentHoursBtn.disabled = false;
-                resourceHoursBtn.disabled = false;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
+function buildResourceHoursTable() {
+	elements.resultDiv.innerHTML = "<h2>Component vs Hours Spent for Each Resource Table</h2>";
+	var resoursHours = {};
+	var startDate = new Date(elements.startDate.value);
+	var endDate = new Date(elements.endDate.value);
+	endDate.setHours(23, 59, 59, 999);
+	jiraJson.issues.forEach(function (issue) {
+		var mainComponentName = issue.fields.components[0].name;
+		issue.fields.worklog.worklogs.forEach(function (worklog) {
+			var worklogDate = new Date(worklog.started);
+			var totalHours = 0;
+			if (worklogDate >= startDate && worklogDate <= endDate) {
+				totalHours += worklog.timeSpentSeconds / 3600;
+			}
+			var name = worklog.author.displayName;
+			if (!resoursHours[name]) {
+				resoursHours[name] = {};
+				resoursHours[name][mainComponentName] = totalHours;
+			} else if (!resoursHours[name][mainComponentName]) {
+				resoursHours[name][mainComponentName] = totalHours;
+			} else {
+				resoursHours[name][mainComponentName] += totalHours;
+			}
 
-    function buildComponentHoursTable() {
-        var resultDiv = document.getElementById("result");
-        resultDiv.innerHTML = "<h2>Component vs Hours Spent Table</h2>";
+		});
 
-        var componentHours = {};
-        var startDate2 = new Date(startDate);
-        var endDate2 = new Date(endDate);
+	});
 
-		// Loop through each issue in the JSON response
-        jiraJson.issues.forEach(function (issue) {
-            // Initialize total hours for the current issue
-            var totalHours = 0;
+	var table = document.createElement("table");
+	var headerRow = table.insertRow();
+	var resourceNameHeader = headerRow.insertCell();
+	resourceNameHeader.textContent = "Resource Name";
+	resourceNameHeader.classList.add('header-row');
 
-            // Loop through each worklog entry in the issue
-            issue.fields.worklog.worklogs.forEach(function (worklog) {
-                // Check if the worklog date falls within the specified date range
-                var worklogDate = new Date(worklog.started);
+	var componentNames = new Set();
+	Object.values(resoursHours).forEach(function (resourceData) {
+		Object.keys(resourceData).forEach(function (componentName) {
+			componentNames.add(componentName);
+		});
+	});
+	componentNames.forEach(function (componentName, index) {
+		var componentHeader = headerRow.insertCell();
+		componentHeader.textContent = componentName;
+		componentHeader.classList.add('header-row');
+	});
+	
+	var componentHeader = headerRow.insertCell();
+	componentHeader.textContent = "Total";
+	componentHeader.classList.add('header-row');
 
-                if (worklogDate >= startDate2 && worklogDate <= endDate2) {
-                    // Accumulate total hours spent on this component
-                    totalHours += worklog.timeSpentSeconds / 3600;
-                }
-            });
+	Object.keys(resoursHours).forEach(function (resourceName, rowIndex) {
+		var row = table.insertRow();
+		var resourceNameCell = row.insertCell();
+		resourceNameCell.textContent = resourceName;
+		var resoursHoursTotal = 0;
+		resourceNameCell.classList.add('header-row');
+		componentNames.forEach(function (componentName, columnIndex) {
+			var componentCell = row.insertCell();
+			componentCell.textContent = resoursHours[resourceName][componentName] || "0"; // If no data, show 0
+			resoursHoursTotal += resoursHours[resourceName][componentName] || 0
+		});
+		var totalCell = row.insertCell();
+		totalCell.textContent = resoursHoursTotal;
+		totalCell.classList.add('total-row');
 
-            // Loop through each component in the issue
-            issue.fields.components.forEach(function (component) {
-                var componentName = component.name;
+	});
+	elements.resultDiv.appendChild(table);
+}
 
-                // Update total hours for the current component
-                if (!componentHours[componentName]) {
-                    // If the component doesn't exist in the componentHours object, initialize it
-                    componentHours[componentName] = totalHours;
-                } else {
-                    // If the component already exists, add the total hours
-                    componentHours[componentName] += totalHours;
-                }
-            });
-        });
+function formatDate(date) {
+	var d = new Date(date),
+		month = '' + (d.getMonth() + 1),
+		day = '' + d.getDate(),
+		year = d.getFullYear();
 
-        var table = document.createElement("table");
-        // Create a header row
-        var headerRow = table.insertRow();
-        var componentHeader = headerRow.insertCell(0);
-        componentHeader.textContent = "Component";
-        var hoursHeader = headerRow.insertCell(1);
-        hoursHeader.textContent = "Hours Spent";
+	if (month.length < 2)
+		month = '0' + month;
+	if (day.length < 2)
+		day = '0' + day;
 
-        // Iterate over componentHours object and populate the table
-        Object.keys(componentHours).forEach(function (componentName) {
-            var row = table.insertRow();
-            var componentCell = row.insertCell(0);
-            componentCell.textContent = componentName;
-            var hoursCell = row.insertCell(1);
-            hoursCell.textContent = componentHours[componentName];
-        });
-
-        // Append the table to the "jira" element
-        resultDiv.appendChild(table);
-    }
-
-    function buildResourceHoursTable() {
-        var resultDiv = document.getElementById("result");
-        resultDiv.innerHTML = "<h2>Component vs Hours Spent for Each Resource Table</h2>";
-        var resoursHours = {};
-        var startDate2 = new Date(startDate);
-        var endDate2 = new Date(endDate);
-
-        // Loop through each issue in the JSON response
-        jiraJson.issues.forEach(function (issue) {
-            // Initialize total hours for the current issue
-            var mainComponentName = issue.fields.components[0].name;
-
-            // Loop through each worklog entry in the issue
-            issue.fields.worklog.worklogs.forEach(function (worklog) {
-                // Check if the worklog date falls within the specified date range
-                var worklogDate = new Date(worklog.started);
-                var totalHours = 0;
-                if (worklogDate >= startDate2 && worklogDate <= endDate2) {
-                    // Accumulate total hours spent on this component
-                    totalHours += worklog.timeSpentSeconds / 3600;
-                }
-                var name = worklog.author.displayName;
-
-                if (!resoursHours[name]) {
-                    // If the component doesn't exist in the componentHours object, initialize it
-                    resoursHours[name] = {};
-                    resoursHours[name][mainComponentName] = totalHours;
-                } else if (!resoursHours[name][mainComponentName]) {
-                    // If the component already exists, add the total hours
-                    resoursHours[name][mainComponentName] = totalHours;
-                } else {
-                    resoursHours[name][mainComponentName] += totalHours;
-                }
-
-            });
-
-        });
-
-        var table = document.createElement("table");
-
-// Create header row
-        var headerRow = table.insertRow();
-
-        var resourceNameHeader = headerRow.insertCell();
-        resourceNameHeader.textContent = "Resource Name";
-
-// Gather unique component names
-        var componentNames = new Set();
-        Object.values(resoursHours).forEach(function (resourceData) {
-            Object.keys(resourceData).forEach(function (componentName) {
-                componentNames.add(componentName);
-            });
-        });
-
-// Add component headers
-        componentNames.forEach(function (componentName, index) {
-            var componentHeader = headerRow.insertCell();
-            componentHeader.textContent = componentName;
-        });
-
-// Populate table with data
-        Object.keys(resoursHours).forEach(function (resourceName, rowIndex) {
-            var row = table.insertRow();
-            var resourceNameCell = row.insertCell();
-            resourceNameCell.textContent = resourceName;
-
-            componentNames.forEach(function (componentName, columnIndex) {
-                var componentCell = row.insertCell();
-                componentCell.textContent = resoursHours[resourceName][componentName] || "0"; // If no data, show 0
-            });
-        });
-
-// Append the table to the "jira" element
-        resultDiv.appendChild(table);
-    }
-
-// Function to format date as YYYY/MM/DD
-    function formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-
-        if (month.length < 2)
-            month = '0' + month;
-        if (day.length < 2)
-            day = '0' + day;
-
-        return [year, month, day].join('/');
-    }
+	return [year, month, day].join('/');
+}
+})();
