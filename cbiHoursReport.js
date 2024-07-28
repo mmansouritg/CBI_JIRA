@@ -1,5 +1,6 @@
 (function() {
 var content = `
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="popup-header">
   <span id="closePopupBtn" class="close">&#x2715;</span>
   <h1>Jira Time report</h1>
@@ -27,8 +28,10 @@ var content = `
 	<div class="reportBtns">
 	<button type="button" class="t-btn" id="buildComponentHoursBtn" disabled><span>Component vs Hours Spent</span></button>
 	<button type="button" class="t-btn" id="buildResourceHoursBtn" disabled><span>Component vs Hours Spent for Each Resource</span></button>
-	</div>
+	<button type="button" class="t-btn" id="buildTicketsPerUserBtn" disabled><span>Tickets has been accomplished Per Each Resource</span></button>
+	</div>|	
 	<div id="result"></div>
+
 </div>
 
 <style>
@@ -276,6 +279,10 @@ var content = `
 	  background-color: #454545  !important;
       color: white;
 }
+
+.myChart {
+    height: 600px;
+}
 	
 </style>
 
@@ -289,6 +296,10 @@ container.innerHTML = content;
 container.setAttribute('id', 'cbiJiraAPIContent');
 document.body.appendChild(container);
 
+const script = document.createElement('script');
+script.src = 'https://www.gstatic.com/charts/loader.js';
+document.head.appendChild(script);
+
 const elements = {
   container : container,
   retrieveDataBtn: document.getElementById('retrieveDataBtn'),
@@ -296,6 +307,7 @@ const elements = {
   buildComponentHoursBtn: document.getElementById('buildComponentHoursBtn'),
   buildResourceHoursBtn: document.getElementById('buildResourceHoursBtn'),
   buildResourceHoursBtn: document.getElementById('buildResourceHoursBtn'),
+  buildTicketsPerUserBtn: document.getElementById('buildTicketsPerUserBtn'),
   startDate: document.getElementById('startDate'),
   endDate: document.getElementById('endDate'),
   project: document.getElementById('project'),
@@ -331,10 +343,16 @@ elements.buildResourceHoursBtn.addEventListener('click', function (event) {
 	buildResourceHoursTable();
 });
 
+elements.buildTicketsPerUserBtn.addEventListener('click', function (event) {
+	event.preventDefault(); // Prevent default behavior of button click
+	buildTicketsPerUserTable();
+});
+
 inputs.forEach((input, index) => {
 	elements[input].addEventListener('change', (event) => {
 		elements.buildResourceHoursBtn.disabled = true;
 		elements.buildComponentHoursBtn.disabled = true;
+		elements.buildTicketsPerUserBtn.disabled = true;
 		elements.retrieveDataBtn.disabled = false;
 		elements[input].classList.remove('t-input-error');
 		var startDate = new Date(elements.startDate.value);
@@ -359,12 +377,40 @@ function getJiraData() {
 	.then(data => {
 		console.log("Data has been retrieved");
 		jiraJson = data;
-		elements.buildResourceHoursBtn.disabled = false;
-		elements.buildComponentHoursBtn.disabled = false;
+		return retriveAllWorkLog(jiraJson);
 	})
 	.catch(error => {
 		console.error('Error:', error);
 	});
+}
+
+
+async function retriveAllWorkLog(jiraJson) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    const worklogFetchPromises = jiraJson.issues
+        .filter(issue => issue.fields.worklog.total > 20)
+        .map(issue =>
+            fetch(`${issue.self}/worklog`, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Jira Data has been retrieved " + issue.key);
+                issue.fields.worklog = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+        );
+
+    await Promise.all(worklogFetchPromises);
+
+    // Enable buttons only after all fetch requests are completed
+    elements.buildResourceHoursBtn.disabled = false;
+    elements.buildComponentHoursBtn.disabled = false;
+    elements.buildTicketsPerUserBtn.disabled = false;
 }
 
 function buildComponentHoursTable() {
@@ -487,6 +533,92 @@ function buildResourceHoursTable() {
 	});
 	elements.resultDiv.appendChild(table);
 }
+
+
+
+function buildTicketsPerUserTable() {
+	elements.resultDiv.innerHTML = "<h2>User vs Tickets count</h2>";
+    var ticketsPerUser = {};
+	var startDate = new Date(elements.startDate.value);
+	var endDate = new Date(elements.endDate.value);
+	endDate.setHours(23, 59, 59, 999);
+	var totalHours = 0;
+	jiraJson.issues.forEach(function (issue) {
+		var hours = 0;
+		issue.fields.worklog.worklogs.forEach(function (worklog) {
+			var resours = {};
+			var worklogDate = new Date(worklog.started);
+			if (worklogDate >= startDate && worklogDate <= endDate) {
+				var name = worklog.author.displayName;
+				if (!resours[name]) {
+					resours[name] = hours;
+					if (!ticketsPerUser[name]) {
+						ticketsPerUser[name] = 1;
+					} else {
+						ticketsPerUser[name] += 1;
+					}
+				} 
+			}
+		});
+	});
+
+	var table = document.createElement("table");
+	var headerRow = table.insertRow();
+	var componentHeader = headerRow.insertCell(0);
+	componentHeader.textContent = "User";
+	var hoursHeader = headerRow.insertCell(1);
+	hoursHeader.textContent = "Tickets Count";
+	headerRow.classList.add('header-row')
+
+	Object.keys(ticketsPerUser).forEach(function (componentName) {
+		var row = table.insertRow();
+		var componentCell = row.insertCell(0);
+		componentCell.textContent = componentName;
+		var hoursCell = row.insertCell(1);
+		hoursCell.textContent = ticketsPerUser[componentName];
+	});
+	
+	var row = table.insertRow();
+	row.classList.add('total-row')
+	var componentCell = row.insertCell(0);
+	componentCell.textContent = "Total Hours";
+	var hoursCell = row.insertCell(1);
+	hoursCell.textContent = totalHours;
+	
+	//elements.resultDiv.appendChild(table);
+	var ctxDiv = document.createElement("div");
+	ctxDiv.classList.add("myChart");
+	elements.resultDiv.appendChild(ctxDiv);
+	
+	var dataArray = [];
+	for (var userName in ticketsPerUser) {
+		if (userName != 'Mohammed Mansour' && userName != 'Luna Arandy' && userName != 'Ibrahim Dwaikat' ) {
+		dataArray.push([userName, ticketsPerUser[userName]]);
+		}
+	}
+		// Sort dataArray by the number of tickets per user
+	dataArray.sort(function(a, b) {
+		return b[1] - a[1];
+	});
+	google.charts.load("current", {packages:["corechart"]});
+    google.charts.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'User');
+		data.addColumn('number', 'Tickets Count');
+		data.addRows(dataArray);
+		var options = {
+          pieSliceText: 'label' + 'percentage',
+		  pieSliceTextStyle: {
+			fontSize: '10',
+          },
+
+		};
+		var chart = new google.visualization.PieChart(ctxDiv);
+		chart.draw(data, options);
+	}	
+}
+
 
 function formatDate(date) {
 	var d = new Date(date),
