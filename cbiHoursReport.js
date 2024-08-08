@@ -29,6 +29,8 @@ var content = `
 	<button type="button" class="t-btn" id="buildComponentHoursBtn" disabled><span>Component vs Hours Spent</span></button>
 	<button type="button" class="t-btn" id="buildResourceHoursBtn" disabled><span>Component vs Hours Spent for Each Resource</span></button>
 	<button type="button" class="t-btn" id="buildTicketsPerUserBtn" disabled><span>Tickets has been accomplished Per Each Resource</span></button>
+	<button type="button" class="t-btn" id="buildResourceHoursBtnWithComment" disabled><span>Component vs Hours Spent for Each Resource</span></button>
+
 	</div>|	
 	<div id="result"></div>
 
@@ -306,7 +308,7 @@ const elements = {
   closePopupBtn: document.getElementById('closePopupBtn'),
   buildComponentHoursBtn: document.getElementById('buildComponentHoursBtn'),
   buildResourceHoursBtn: document.getElementById('buildResourceHoursBtn'),
-  buildResourceHoursBtn: document.getElementById('buildResourceHoursBtn'),
+  buildResourceHoursBtnWithComment: document.getElementById('buildResourceHoursBtnWithComment'),
   buildTicketsPerUserBtn: document.getElementById('buildTicketsPerUserBtn'),
   startDate: document.getElementById('startDate'),
   endDate: document.getElementById('endDate'),
@@ -343,6 +345,12 @@ elements.buildResourceHoursBtn.addEventListener('click', function (event) {
 	buildResourceHoursTable();
 });
 
+elements.buildResourceHoursBtnWithComment.addEventListener('click', function (event) {
+	event.preventDefault(); // Prevent default behavior of button click
+	buildResourceHoursWithCommentTable();
+});
+
+
 elements.buildTicketsPerUserBtn.addEventListener('click', function (event) {
 	event.preventDefault(); // Prevent default behavior of button click
 	buildTicketsPerUserTable();
@@ -351,6 +359,7 @@ elements.buildTicketsPerUserBtn.addEventListener('click', function (event) {
 inputs.forEach((input, index) => {
 	elements[input].addEventListener('change', (event) => {
 		elements.buildResourceHoursBtn.disabled = true;
+		elements.buildResourceHoursBtnWithComment.disabled = true;
 		elements.buildComponentHoursBtn.disabled = true;
 		elements.buildTicketsPerUserBtn.disabled = true;
 		elements.retrieveDataBtn.disabled = false;
@@ -411,6 +420,7 @@ async function retriveAllWorkLog(jiraJson) {
     elements.buildResourceHoursBtn.disabled = false;
     elements.buildComponentHoursBtn.disabled = false;
     elements.buildTicketsPerUserBtn.disabled = false;
+	elements.buildResourceHoursBtnWithComment.disabled = false;	
 }
 
 function buildComponentHoursTable() {
@@ -534,6 +544,78 @@ function buildResourceHoursTable() {
 	elements.resultDiv.appendChild(table);
 }
 
+
+function buildResourceHoursWithCommentTable() {
+	elements.resultDiv.innerHTML = "<h2>Component vs Hours Spent for Each Resource Table</h2>";
+	var resoursHours = {};
+	var startDate = new Date(elements.startDate.value);
+	var endDate = new Date(elements.endDate.value);
+	endDate.setHours(23, 59, 59, 999);
+	jiraJson.issues.forEach(function (issue) {
+		var mainComponentName = issue.fields.components[0].name;
+		issue.fields.worklog.worklogs.forEach(function (worklog) {
+			var worklogDate = new Date(worklog.started);
+			var totalHours = 0;
+			if (worklogDate >= startDate && worklogDate <= endDate) {
+				totalHours += worklog.timeSpentSeconds / 3600;
+			}
+			var name = worklog.author.displayName;
+			if (worklog.comment != null && worklog.comment != '') {
+				name = worklog.comment;
+			}
+			if (!resoursHours[name]) {
+				resoursHours[name] = {};
+				resoursHours[name][mainComponentName] = totalHours;
+			} else if (!resoursHours[name][mainComponentName]) {
+				resoursHours[name][mainComponentName] = totalHours;
+			} else {
+				resoursHours[name][mainComponentName] += totalHours;
+			}
+
+		});
+
+	});
+
+	var table = document.createElement("table");
+	var headerRow = table.insertRow();
+	var resourceNameHeader = headerRow.insertCell();
+	resourceNameHeader.textContent = "Resource Name";
+	resourceNameHeader.classList.add('header-row');
+
+	var componentNames = new Set();
+	Object.values(resoursHours).forEach(function (resourceData) {
+		Object.keys(resourceData).forEach(function (componentName) {
+			componentNames.add(componentName);
+		});
+	});
+	componentNames.forEach(function (componentName, index) {
+		var componentHeader = headerRow.insertCell();
+		componentHeader.textContent = componentName;
+		componentHeader.classList.add('header-row');
+	});
+	
+	var componentHeader = headerRow.insertCell();
+	componentHeader.textContent = "Total";
+	componentHeader.classList.add('header-row');
+
+	Object.keys(resoursHours).forEach(function (resourceName, rowIndex) {
+		var row = table.insertRow();
+		var resourceNameCell = row.insertCell();
+		resourceNameCell.textContent = resourceName;
+		var resoursHoursTotal = 0;
+		resourceNameCell.classList.add('header-row');
+		componentNames.forEach(function (componentName, columnIndex) {
+			var componentCell = row.insertCell();
+			componentCell.textContent = resoursHours[resourceName][componentName] || "0"; // If no data, show 0
+			resoursHoursTotal += resoursHours[resourceName][componentName] || 0
+		});
+		var totalCell = row.insertCell();
+		totalCell.textContent = resoursHoursTotal;
+		totalCell.classList.add('total-row');
+
+	});
+	elements.resultDiv.appendChild(table);
+}
 
 
 function buildTicketsPerUserTable() {
