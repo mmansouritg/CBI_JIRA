@@ -374,7 +374,7 @@ inputs.forEach((input, index) => {
 });
 
 function getJiraData() {
-	let apiUrl = "https://jira.cornerstonebrands.com/rest/api/2/search?jql=worklogDate%20%3E=%20%22" + formatDate(elements.startDate.value) + "%22%20AND%20worklogDate%20%3C=%20%22" + formatDate(elements.endDate.value) + "%22%20AND%20project%20=%20%22" + elements.project.value + "%22&fields=components,worklog,timetracking&maxResults=500";
+	let apiUrl = "https://jira.cornerstonebrands.com/rest/api/2/search?jql=worklogDate%20%3E=%20%22" + formatDate(elements.startDate.value) + "%22%20AND%20worklogDate%20%3C=%20%22" + formatDate(elements.endDate.value) + "%22%20AND%20project%20=%20%22" + elements.project.value + "%22&fields=components,worklog,timetracking&maxResults=600";
 	let headers = new Headers();
 	headers.append('Content-Type', 'application/json');
 
