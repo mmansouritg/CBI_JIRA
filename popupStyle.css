@@ -1,4 +1,3 @@
-
 #cbiJiraAPIContent {  
     position: fixed;
     z-index: 2147483647;
@@ -7,22 +6,21 @@
     margin: 0px;
     padding: 30px;
     width: 80%;
-    background: 0px 0px repeat rgb(239, 239, 239);
+    background: rgb(239, 239, 239);
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
-    box-shadow: rgba(255, 255, 255, 0.6) 0px 1px 0px inset, rgba(0, 0, 0, 0.56) 0px 22px 70px 4px, rgba(0, 0, 0, 0.3) 0px 0px 0px 1px;
-    -webkit-transform-origin-x: 0px;
-    -webkit-transform-origin-y: 0px;
-    padding: 15px 30px 30px 30px;
+    box-shadow: rgba(255, 255, 255, 0.6) 0px 1px 0px inset, 
+                rgba(0, 0, 0, 0.56) 0px 22px 70px 4px, 
+                rgba(0, 0, 0, 0.3) 0px 0px 0px 1px;
     max-height: 100vh;
-	overflow: scroll;
+    overflow: scroll;
 }
+
 #cbiJiraAPIContent h1 {
     color: #172b4d;
     font-weight: 600;
     text-align: center;
 }
-
 
 #cbiJiraAPIContent .popup-header {
     display: flex;
@@ -33,6 +31,7 @@
 #cbiJiraAPIContent .popup-header h1 {
     width: 100%;
 }
+
 #cbiJiraAPIContent #closePopupBtn {
     position: absolute;
     font-size: 30px;
@@ -46,185 +45,98 @@
     padding-top: 15px;
 }
 
-#cbiJiraAPIContent input[type="date"] {
-  position: relative;
+/* ✅ Fix: Use flexbox to align buttons (Left) and results (Right) */
+#cbiJiraAPIContent .reportContainer {
+    display: flex; /* Enable flexbox */
+    align-items: flex-start; /* Align elements at the top */
+    gap: 20px; /* Space between left and right sections */
+    width: 100%; /* Ensure full width */
 }
 
-#cbiJiraAPIContent .t-btn,
-#cbiJiraAPIContent .t-btn-secondary {
-  position: relative;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  border: 0;
-  border-radius: 0;
-  color: #fff;
-  font-weight: 500;
-  letter-spacing: .07em;
-  text-decoration: none;
-  text-transform: uppercase
-}
-#cbiJiraAPIContent .t-btn > * {
-  position: relative;
-  z-index: 1
-}
-
-#cbiJiraAPIContent .t-btn::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #404040;
-  transition: all .3s
-}
-
-#cbiJiraAPIContent .t-btn:hover::before {
-  background-color: #000;
-  width: calc(100% + 6px);
-  height: calc(100% + 6px);
-  top: -3px;
-  left: -3px
-}
-
-#cbiJiraAPIContent .t-btn:focus {
-  outline: 0;
-  position: relative
-}
-#cbiJiraAPIContent .t-btn:focus::after {
-  content: "";
-  display: block;
-  width: calc(100% + 8px);
-  height: calc(100% + 8px);
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  border: 1px solid #404040
-}
-
-#cbiJiraAPIContent .t-btn.is-disabled,
-#cbiJiraAPIContent .t-btn:disabled {
-  pointer-events: none;
-  background-color: #959595;
-  opacity: .5
-}
-
-#cbiJiraAPIContent .t-input-box {
-  margin: 8px 0 40px 0;
-  max-width: 100%;
-  width: 335px;
-  padding: 18px 0 18px 16px;
-  border: 1px solid #404040;
-  -moz-appearance: auto;
-  appearance: auto;
-  -webkit-appearance: none;
-  border-radius: 0
-}
-@media (min-width:1280px) {
-  #cbiJiraAPIContent .t-input-box {
-    width: 626px
-  }
-}
-#cbiJiraAPIContent .t-input-label {
-  font-family: Avenir,Arial,sans-serif;
-  font-weight: 900;
-  font-size: 1rem;
-  line-height: 1.5714285714rem
-}
-#cbiJiraAPIContent .t-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 60px;
-  line-height: 50px;
-  padding: 0 8px;
-  border: 1px solid #404040;
-  background-color: #fff;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='6' viewBox='0 0 12 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 5L11 0.999999' stroke='%23404040' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-position: calc(100% - 12px) center;
-  background-repeat: no-repeat
-}
-#cbiJiraAPIContent .t-select:invalid {
-  color: rgba(64,64,64,.5)
-}
-#cbiJiraAPIContent .t-input-error {
-  margin: 8px 0 8px 0;
-  border: 1px solid #9f3025
-}
-#cbiJiraAPIContent .t-input-error-message {
-  vertical-align: middle;
-  font-family: Avenir;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 22px;
-  letter-spacing: 0;
-  display: inline-block;
-  padding-bottom: 15px
-}
-
-#cbiJiraAPIContent button#retrieveDataBtn {
-    width: 50%;
-    margin-left: 25%;
-}
-
-#cbiJiraAPIContent .reportBtns {
-    border-top: 1px solid;
-    padding-top: 20px;
+/* ✅ Column 1 (Left: Buttons) */
+#cbiJiraAPIContent .column1 {
+    width: 20%; /* Takes 20% of the total width */
+    min-width: 200px; /* Prevent shrinking too much */
+    border-right: 1px solid #ddd; /* Adds separator */
+    padding-right: 20px;
     display: flex;
-    gap: 5%;
-}
-#cbiJiraAPIContent .reportBtns button {
-    width: 48%;
-}
-
-#cbiJiraAPIContent #result {
-    margin-top: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
 }
 
+/* Ensure buttons take full width of the column */
+#cbiJiraAPIContent .column1 button {
+    width: 100%;
+}
 
+/* ✅ Column 2 (Right: Results) */
+#cbiJiraAPIContent .column2 {
+    flex: 1; /* Takes the remaining space */
+    padding-left: 20px;
+    min-height: 100px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #f9f9f9;
+    width: 80%; /* Ensures the right section takes up the remaining space */
+}
 
+/* Button Styles */
+#cbiJiraAPIContent .t-btn {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    border: 0;
+    border-radius: 0;
+    color: #fff;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background-color: #404040;
+    transition: all .3s;
+    font-size: 12px;
+}
+
+#cbiJiraAPIContent .t-btn:hover {
+    background-color: #000;
+}
+
+#cbiJiraAPIContent .t-btn:disabled {
+    pointer-events: none;
+    background-color: #959595;
+    opacity: .5;
+}
+
+/* Table Styles */
 #cbiJiraAPIContent table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      font-family: Arial, sans-serif;
-    }
-    
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
 #cbiJiraAPIContent th, #cbiJiraAPIContent td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
 }
 
 #cbiJiraAPIContent th {
-  background-color: #007bff;
-  color: white;
+    background-color: #007bff;
+    color: white;
 }
 
 #cbiJiraAPIContent tr:nth-child(even) {
-  background-color: #f2f2f2;
+    background-color: #f2f2f2;
 }
 
 #cbiJiraAPIContent tr:hover {
-  background-color: #ddd;
+    background-color: #ddd;
 }
 
-#cbiJiraAPIContent .header-row, #cbiJiraAPIContent .total-row {
-	  background-color: #454545  !important;
-      color: white;
-}
-
-#cbiJiraAPIContent .header-row:hover, #cbiJiraAPIContent .total-row:hover {
-	  background-color: #454545  !important;
-      color: white;
-}
-
+/* Chart */
 .myChart {
     height: 600px;
 }
-	
